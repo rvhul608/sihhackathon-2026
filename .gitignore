@@ -1,2 +1,9 @@
 __pycache__/
 *.pyc
+.venv/
+.vision-venv/
+.tools/
+vision_pipeline/models/
+web_ocr_benchmark/models/*.onnx
+web_ocr_benchmark/models/en_dict.txt
+web_ocr_benchmark/models/.paddle-inference/

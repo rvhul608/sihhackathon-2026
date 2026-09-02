@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SIH26034 mobile OCR benchmark</title>
+    <style>
+      body { font: 16px system-ui, sans-serif; margin: 1rem; max-width: 760px; }
+      input, button { font: inherit; margin: .3rem 0; }
+      #preview { display: block; max-width: 100%; max-height: 360px; margin-top: 1rem; }
+      #status { white-space: pre-wrap; padding: .75rem; background: #f4f4f4; border-radius: .5rem; }
+      .note { color: #555; }
+    </style>
+    <!-- OpenCV supplies DB-map contour extraction; ONNX Runtime executes both OCR models. -->
+    <script async src="https://docs.opencv.org/4.x/opencv.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
+  </head>
+  <body>
+    <h1>Mobile PP-OCR benchmark</h1>
+    <p class="note">Runs entirely in this browser after the first model download. Select one real, front-facing product-label photo.</p>
+    <input id="image" type="file" accept="image/*" capture="environment" />
+    <button id="run" disabled>Run benchmark</button>
+    <img id="preview" alt="Selected label preview" />
+    <pre id="status">Loading OpenCV…</pre>
+    <script type="module" src="./benchmark.js?v=5"></script>
+  </body>
+</html>

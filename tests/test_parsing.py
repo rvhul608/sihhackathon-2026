@@ -29,6 +29,14 @@ class DeclarationParsingTests(unittest.TestCase):
         self.assertIsNone(fields["expiry_date"]["value"])
         self.assertEqual(fields["expiry_date"]["confidence"], 0.0)
 
+    def test_server_threshold_does_not_publish_low_confidence_declarations(self):
+        fields = parse_declarations(
+            [ParsedLine("MRP: Rs. 99", 0.49)], min_confidence=0.50
+        )
+        self.assertEqual(
+            fields["mrp"], {"value": None, "confidence": 0.0, "present": False}
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -6,6 +6,45 @@ from pathlib import Path
 from typing import Any
 
 
+def load_image(image_path: str | Path) -> Any:
+    """Decode an image without silently resizing it."""
+    try:
+        import cv2
+    except ImportError as exc:
+        raise RuntimeError("OpenCV is required; install requirements-vision.txt.") from exc
+
+    image = cv2.imread(str(image_path))
+    if image is None:
+        raise ValueError(f"OpenCV could not decode image: {image_path}")
+    return image
+
+
+def clahe_bgr(image: Any) -> Any:
+    """Improve local luminance contrast while preserving colour for OCR."""
+    import cv2
+
+    lab = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
+    luminance, a_channel, b_channel = cv2.split(lab)
+    enhanced = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8)).apply(luminance)
+    return cv2.cvtColor(cv2.merge((enhanced, a_channel, b_channel)), cv2.COLOR_LAB2BGR)
+
+
+def laplacian_sharpness(image: Any) -> float:
+    import cv2
+
+    return float(cv2.Laplacian(cv2.cvtColor(image, cv2.COLOR_BGR2GRAY), cv2.CV_64F).var())
+
+
+def glare_ratio(image: Any) -> float:
+    """Fraction covered by bright, low-saturation reflection-like pixels."""
+    import cv2
+    import numpy as np
+
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    mask = cv2.inRange(hsv, np.array((0, 0, 245)), np.array((180, 80, 255)))
+    return float(cv2.countNonZero(mask)) / float(mask.size)
+
+
 def detect_and_crop_label(image_path: str | Path) -> Any:
     """Return the best rectangular label proposal, or the complete image.
 
@@ -18,9 +57,17 @@ def detect_and_crop_label(image_path: str | Path) -> Any:
     except ImportError as exc:
         raise RuntimeError("OpenCV and NumPy are required; install requirements-vision.txt.") from exc
 
-    image = cv2.imread(str(image_path))
-    if image is None:
-        raise ValueError(f"OpenCV could not decode image: {image_path}")
+    image = load_image(image_path)
+    return detect_and_crop_label_image(image)
+
+
+def detect_and_crop_label_image(image: Any) -> Any:
+    """Find a rectangular label and perspective-correct it, with full-image fallback."""
+    try:
+        import cv2
+        import numpy as np
+    except ImportError as exc:
+        raise RuntimeError("OpenCV and NumPy are required; install requirements-vision.txt.") from exc
 
     height, width = image.shape[:2]
     image_area = height * width

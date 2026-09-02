@@ -1,6 +1,8 @@
-# PaddlePaddle currently publishes broadly usable wheels for Python 3.10–3.12.
-# Create the vision environment with one of those Python versions.
-paddlepaddle>=2.6,<3.0
+# Python 3.10–3.12 only. Install paddlepaddle-gpu separately with the wheel
+# matching the host CUDA runtime; do not install both Paddle CPU and GPU wheels.
 paddleocr>=2.7,<3.0
 opencv-python>=4.8
 numpy>=1.24
+fastapi>=0.115,<1.0
+uvicorn[standard]>=0.30,<1.0
+python-multipart>=0.0.9
